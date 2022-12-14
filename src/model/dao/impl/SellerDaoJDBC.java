@@ -53,19 +53,11 @@ public class SellerDaoJDBC implements SellerDao{
 			
 			//testar se há resultado do bd
 			if(rs.next()) {
-				// 57 - 59 - Instanciação do departamento e salvamento dos dados nas respectivas variáveis retornadas da pesquisa no BD
-				Department dep = new Department();
-				dep.setId(rs.getInt("DepartmentId"));
-				dep.setName(rs.getString("DepName"));
+				// 88 - Instanciação do departamento e salvamento dos dados nas respectivas variáveis retornadas da pesquisa no BD
+				Department dep = instantiateDepartment(rs);
 				
-				// 62 - 68 - Instanciação do seller e salvamento dos dados nas respectivas variáveis retornadas da pesquisa no BD
-				Seller obj = new Seller();
-				obj.setId(rs.getInt("Id"));
-				obj.setName(rs.getString("Name"));
-				obj.setEmail(rs.getString("Email"));
-				obj.setBaseSalary(rs.getDouble("BaseSalary"));
-				obj.setBirthDate(rs.getDate("BirthDate"));
-				obj.setDepartment(dep);
+				// 76 - Instanciação do seller e salvamento dos dados nas respectivas variáveis retornadas da pesquisa no BD
+				Seller obj = instantiateSeller(rs, dep);
 				
 				return obj;
 			}
@@ -78,6 +70,26 @@ public class SellerDaoJDBC implements SellerDao{
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
 		}
+	}
+	
+	//função para retornar os dados do BD de seller - Obs: não vamos tratar as exceções pois na linha 72 já o fizemos
+	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
+		Seller obj = new Seller();
+		obj.setId(rs.getInt("Id"));
+		obj.setName(rs.getString("Name"));
+		obj.setEmail(rs.getString("Email"));
+		obj.setBaseSalary(rs.getDouble("BaseSalary"));
+		obj.setBirthDate(rs.getDate("BirthDate"));
+		obj.setDepartment(dep);
+		return obj;
+	}
+
+	//função para retornar os dados do BD de department - Obs: não vamos tratar as exceções pois na linha 72 já o fizemos
+	private Department instantiateDepartment(ResultSet rs) throws SQLException {
+		Department dep = new Department();
+		dep.setId(rs.getInt("DepartmentId"));
+		dep.setName(rs.getString("DepName"));
+		return dep;
 	}
 
 	@Override
