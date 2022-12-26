@@ -97,7 +97,51 @@ public class SellerDaoJDBC implements SellerDao{
 
 	@Override
 	public List<Seller> findAll() {
-		return null;
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			st = conn.prepareStatement(
+					"SELECT seller.*,department.Name as DepName "
+					+ "FROM seller INNER JOIN department "
+					+ "ON seller.DepartmentId = department.Id "
+					+ "ORDER BY Name"); 
+			
+			rs = st.executeQuery();
+			
+			 //Lista criada para guardar os dados de cada vendedor por departamento
+			List<Seller> list = new ArrayList<>();
+			
+			//Lista em MAP criada para guardar qualquer departamento que instaciar sem repetição
+			Map<Integer, Department> map = new HashMap<>();
+			
+			//testar se há resultado do bd
+			while(rs.next()) {
+				
+				//teste para ver cada departamento que for passar até o WHILE acabar, buscando em get o id do departamento no BD
+				Department dep = map.get(rs.getInt("DepartmentId"));
+				
+				//se o departamento for nulo (ainda nao tivermos visto ele), vamos instanciar
+				if(dep == null) {
+					// 88 - Instanciação do departamento e salvamento dos dados nas respectivas variáveis retornadas da pesquisa no BD
+					dep = instantiateDepartment(rs);
+					
+					//passagem de dados do Department para o MAP
+					map.put(rs.getInt("DepartmentId"), dep);
+				}
+				
+				// 76 - Instanciação do seller e salvamento dos dados nas respectivas variáveis retornadas da pesquisa no BD
+				Seller obj = instantiateSeller(rs, dep);
+				list.add(obj);
+			}
+			return list;
+		}
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+			DB.closeResultSet(rs);
+		}
 	}
 
 	@Override
